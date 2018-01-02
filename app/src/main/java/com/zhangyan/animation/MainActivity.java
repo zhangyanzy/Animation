@@ -5,11 +5,17 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.databinding.DataBindingUtil;
+import android.graphics.PointF;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
 
 
@@ -30,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.test_translate:
-                    XMLTest();
+                    interpolator();
                     break;
                 default:
                     break;
@@ -70,7 +76,16 @@ public class MainActivity extends AppCompatActivity {
         animator.start();
     }
 
-    //组合动画
+
+    /**
+     * set.play()//执行单个动画
+     * set.playTogether(animation,animation,animation);//同时执行
+     * set.playSequentially(animation,animation,animation);//依次执行
+     * set.setDuration();
+     * set.start();
+     */
+
+    //组合动画(集合)
     private void combinationAnimation() {
         ObjectAnimator mTranslationX = ObjectAnimator.ofFloat(binding.testImage, "translationX", -500f, 0f);
         ObjectAnimator mRotate = ObjectAnimator.ofFloat(binding.testImage, "rotation", 0f, 360f);
@@ -79,8 +94,10 @@ public class MainActivity extends AppCompatActivity {
         set.play(mRotate).with(mAlpha).after(mTranslationX);
         set.setDuration(5000);
         set.start();
-
     }
+
+
+    //同事开启多种动画
 
     //Animator监听器
     private void AnimatorListener() {
@@ -109,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /**
-         * 可以随意选择需要箭筒的内容
+         * 可以随意选择需要监听的内容
          */
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -122,6 +139,8 @@ public class MainActivity extends AppCompatActivity {
                 super.onAnimationEnd(animation);
             }
         });
+
+        //
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -139,6 +158,84 @@ public class MainActivity extends AppCompatActivity {
         animator.start();
     }
 
+    /**
+     * 抛物线效果
+     * X轴：匀速
+     * Y轴：加速度. Y = 1/2 *g *t*t(g(加速度的值  ))
+     * 估值器实现
+     */
+    private void parabola() {
+        ValueAnimator animator = new ValueAnimator();
+        animator.setDuration(8000);
+        animator.setObjectValues(new PointF(0, 0));
+        //估值器
+        animator.setEvaluator(new TypeEvaluator<PointF>() {
+            /**
+             * @param fraction:百分比
+             * @param startValue
+             * @param endValue
+             * @return
+             */
+            @Override
+            public PointF evaluate(float fraction, PointF startValue, PointF endValue) {
+                //拿到每一个时间点的坐标
+                PointF pointF = new PointF();
+                pointF.x = 100f * (fraction * 4);//初始速度*执行的百分比
+                pointF.y = 0.5f * 9.8f * (fraction * 4) * (fraction * 4);
+                return pointF;
+            }
+        });
+
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                PointF pointF = (PointF) valueAnimator.getAnimatedValue();
+                //得到时间点的坐标
+                binding.testImage.setX(pointF.x);
+                binding.testImage.setY(pointF.y);
+            }
+        });
+
+
+        animator.start();
+    }
+
+    /**
+     * 设置加速器
+     */
+    private void interpolator() {
+//        float mTranslationX = binding.testImage.getTranslationX();
+        ObjectAnimator animator = ObjectAnimator.ofFloat(binding.testImage, "translationY", 0f, 300);
+        animator.setDuration(500 );
+        //设置加速
+//        animator.setInterpolator(new AccelerateInterpolator(5));
+        //设置先加速后减速
+//        animator.setInterpolator(new AccelerateDecelerateInterpolator());
+        // 回荡秋千的方式
+//        animator.setInterpolator(new AnticipateInterpolator(8 ));
+        //回弹 缓冲的效果
+//        animator.setInterpolator(new OvershootInterpolator());
+        //
+        animator.start();
+    }
+
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

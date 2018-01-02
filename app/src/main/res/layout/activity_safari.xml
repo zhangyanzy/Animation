@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="presenter"
+            type="com.zhangyan.animation.PropertyAnimation.SafariActivity.Presenter" />
+    </data>
+
+    <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.zhangyan.animation.PropertyAnimation.SafariActivity">
+
+        <LinearLayout
+            android:id="@+id/first_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/icon_2"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/start_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="@{presenter.onClick}"
+                android:text="start" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/second_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:clickable="true"
+            android:onClick="@{presenter.onClick}"
+            android:scaleType="fitXY"
+            android:src="@mipmap/icon_1"
+            android:visibility="gone"
+
+            />
+
+    </RelativeLayout>
+
+</layout>
+
+
